@@ -1,160 +1,89 @@
-🤖 AI/LLM Security & Governance Starter Kit  
-Threat‑model, test, and govern LLM apps  
+# 🤖 AI/LLM Security & Governance Starter Kit  
+**Threat‑model, test, and govern LLM apps**
 
-Red‑Team/Evals Harness  
-Simple & NeMo Guardrails  
-Governance Pack (NIST AI RMF)  
-Metrics & CI  
-License: MIT  
+[![Risk Framework: NIST AI RMF](https://img.shields.io/badge/Risk%20Framework-NIST%20AI%20RMF-blue)](https://www.nist.gov/itl/ai-risk-management-framework) [![Red‑team/Evals Harness](https://img.shields.io/badge/Red%E2%80%91team%2FEvals%20Harness-critical?logo=pytest)](#) [![Guardrails Pack](https://img.shields.io/badge/Guardrails-Pack-green)](#) [![Governance Pack: NIST AI RMF](https://img.shields.io/badge/Governance%20Pack-NIST%20AI%20RMF-lightgrey)](#) [![Metrics & CI](https://img.shields.io/badge/Metrics%20%26%20CI-passing-success)](#) [![License: MIT](https://img.shields.io/badge/License-MIT-green.svg)](LICENSE)
 
-# AI/LLM Security & Governance Starter Kit
+## Overview  
+This project provides a complete starter kit to **threat‑model, test, and govern LLM applications**. It ships with:  
+- **Red‑team/evals harness** to exercise prompt injection, data exfiltration, unsafe content and other adversarial behaviors.  
+- **Guardrails** using simple policy filters plus optional NVIDIA NeMo Guardrails integration.  
+- **Governance artifacts** including NIST AI RMF mapping, a risk register template, privacy impact assessments, and model/system cards.  
+- **Metrics & CI** that fail the build when regressions are detected.  
+  
+Framework anchors: NIST AI RMF 1.0 (“Govern, Map, Measure, Manage”), OWASP Top 10 for LLM Applications (2025), MITRE ATLAS adversarial techniques, and the EU AI Act timeline for compliance readiness.
 
-A complete starter kit to **threat‑model, test, and govern LLM apps**. It ships with:  
-- **Red‑team/evals harness** (prompt injection, data exfiltration, unsafe content)  
-- **Guardrails** (simple policy filters + optional NVIDIA **NeMo Guardrails**)  
-- **Governance artifacts** (NIST **AI RMF** mapping, risk register, PIA, model/system cards)  
-- **Metrics** and CI that fail the build on regressions  
-
-> Framework anchors: **NIST AI RMF 1.0** (“Govern, Map, Measure, Manage”), **OWASP Top 10 for LLM Applications (2025)**, **MITRE ATLAS** adversarial techniques, with EU **AI Act** timelines in mind for governance/readiness.
-
----
-
-## Why this matters now
-
-- **NIST AI RMF 1.0** is the de‑facto risk framework; we map deliverables to **Govern, Map, Measure, Manage** so auditors and leadership see a familiar structure.  
-- **OWASP LLM Top 10 (2025)** provides concrete risks/mitigations (e.g., Prompt Injection, Data Leakage) that our tests exercise.  
-- **MITRE ATLAS** catalogs adversarial tactics against AI systems; we use it to label tests and coverage.  
-- EU **AI Act** obligations are phasing in through 2026–2027, with 2025 guidance and GPAI expectations—this repo’s governance pack helps you show active readiness.
-
-(Authoritative sources listed in **References** below.)
-
----
-
-## What’s inside
-
-- **Threat models** (`/threat-models`): filled template + example for a “storefront support bot”.  
-- **Evals** (`/evals`):  
-  - `runner.py` runs tests against any HTTP LLM endpoint (`POST { "prompt": "..." } → { "response": "..." }`).  
-  - Baseline tests: `/evals/prompts/*.txt` and config in `/evals/configs/baseline.yaml`.  
-  - Results saved to `/evals/reports/`.  
-- **Guardrails** (`/guardrails`):  
-  - Lightweight `simple_filters.py` (regex + policy checks) wired into the evals harness.  
-  - Optional **NeMo Guardrails** (`/guardrails/nemo`) with a minimal Colang policy and config.  
-- **Governance** (`/governance`):  
-  - `nist-airmf/controls-mapping.md` (how repo artifacts map to AI RMF).  
-  - `risk-register.csv`, `pia-template.md`, `model-card.md`, `system-card.md`, `release-checklist.md`.  
-- **Docs** (`/docs`): architecture, metrics to track, and how‑to‑run.  
-- **CI** (`.github/workflows`): Python unit tests + (optional) **CodeQL** and **OpenSSF Scorecard**.  
-
----
-
-## Quickstart
-
-### 0) Prereqs
-- Python **3.11+**  
-- Your LLM endpoint (local or hosted) that accepts `{"prompt": "..."} → {"response": "..."}`.  
-  *Tips:* For local dev, you can mock an endpoint or run any OpenAI‑compatible API locally.  
-
-### 1) Install  
+## ⚡️ Quickstart  
 
 ```bash
-python -m venv .venv && source .venv/bin/activate   # Windows: .venv\Scripts\activate
-pip install -e .
+# Clone the repository
+git clone https://github.com/xaviermotley/llm-sec-gov.git
+cd llm-sec-gov
+
+# Create a virtual environment and install dependencies (if applicable)
+python -m venv .venv && source .venv/bin/activate
+pip install -r requirements.txt
+
+# Run baseline evaluations against your LLM endpoint
+# (See evals/configs/*.yaml for sample configs)
+python evals/run_eval.py --config evals/configs/baseline.yaml
 ```
 
-### 2) Run the baseline evals  
+## 📚 Architecture  
+The kit centers around a few core components:  
+- **Threat models** (`./threat-models/`): filled template + example for a “storefront prompt bot”.  
+- **Evals** (`./evals`): prompt harness tests against any HTTP LLM endpoint; config driven for risk categories (e.g., “Prompt Injection”, “Data Leakage”).  
+- **Guardrails** (`./guardrails`): simple filter-based policies plus optional NVIDIA NeMo Guardrails YAMLs.  
+- **Governance** (`./governance`): NIST AI RMF mapping, risk register, model/system cards, privacy impact assessments.  
+- **Metrics & CI**: unit tests and GitHub Actions to enforce policy/test thresholds.  
 
-```bash
-export MODEL_ENDPOINT_URL=http://localhost:8000/v1/chat/completions  # or your endpoint
-python evals/runner.py --config evals/configs/baseline.yaml --endpoint $MODEL_ENDPOINT_URL
-```
+## 📎 Repository Structure  
 
-This runs:  
-	•	Prompt Injection (attempts to override system policy)  
-	•	Data Exfiltration (tries to elicit known secret text)  
-	•	Unsafe Content (toxicity/illicit assistance prompts)  
+| Path | Description |
+|---|---|
+| `threat-models/` | Templates & examples for LLM threat models. |
+| `evals/` | Prompt eval harness (configs & tests). |
+| `guardrails/` | Policy filters & optional NeMo guardrails configs. |
+| `governance/` | NIST AI RMF mapping, risk register, PIA, model/system cards. |
+| `metrics/` | Scripts for tracking coverage, detection rate & CI pass/fail. |
+| `docs/` | Additional docs & architecture diagrams. |
+| `.github/workflows/` | CI definitions for linting, tests, scorecard, CodeQL. |
+| `README.md` | This file. |
 
-Outputs: machine‑readable JSON + console summary with pass/fail and guardrail catch‑rates.  
+## 📊 Key Metrics  
 
-### 3) (Optional) Add NeMo Guardrails  
+- **Coverage**: % of OWASP Top 10 / MITRE ATLAS techniques with at least one eval scenario.  
+- **Detection rate**: % of attacks correctly flagged by guardrails/evals.  
+- **Governance completeness**: % of required AI RMF artifacts filled out (risk register, PIA, system card).  
+- **CI pass rate**: % of commits passing unit tests and security scans.  
 
-```bash
-pip install nemoguardrails
-python -m guardrails.nemo_demo   # see guardrails/nemo/ for config and colang
-```
+## 🛠️ Implementation Steps  
 
-### 4) Metrics to publish (copy to your README badges)  
-	•	Blocked jailbreaks (% of prompt‑injection tests blocked)  
-	•	Data‑leak prevention (% of seeded secrets never echoed)  
-	•	Unsafe content adherence (% blocked or transformed)  
-	•	Regression rate (week‑over‑week failures)  
+1. **Define threat models**: Fill out `threat-models/ai-threat-model-template.md` with your LLM application context.  
+2. **Configure evaluations**: Create YAML configs in `evals/configs/` describing the prompt categories & LLM endpoints to test.  
+3. **Run evaluations**: Use the harness (`python evals/run_eval.py`) to exercise your endpoints and observe results.  
+4. **Implement guardrails**: Tune `guardrails/filters.py` and optional `nemo_guardrails` YAMLs to enforce policy.  
+5. **Fill governance artifacts**: Use templates in `governance/` for your risk register, PIA, and model cards.  
+6. **Automate metrics & CI**: Add GitHub Actions to run evals, measure detection rate, and fail on regressions.  
 
-See /docs/metrics.md for guidance and examples.  
+## 🌱 Progressive Add‑Ons  
 
----
+- **Compliance copilot**: Integrate open-source Vanta MCP server or similar to answer “what controls are failing & why?” (experimental).  
+- **Evidence lineage**: Attach raw prompts and responses to eval logs for audit trail.  
+- **Org-scale**: Parameterize tests for multiple models/endpoints; incorporate additional frameworks (e.g., ISO 42001).  
 
-## Architecture
+## ⚠️ Notes & Gotchas  
 
+- **Auth & rate limits**: When calling external APIs, handle quotas & secrets responsibly (use `.env` + GitHub Secrets).  
+- **Don’t over‑promise detection**: Models evolve; continuously update evals/guardrails as new attack techniques emerge.  
+- **Share responsibly**: These examples are for educational use; adapt them to your org’s risk appetite and regulatory obligations.  
 
----
+## 📚 References  
 
-## Map to NIST AI RMF 1.0
-	•	Govern: RACI, release-checklist.md, risk acceptance criteria, system-card.md.  
-	•	Map: Threat model templates, data flow diagrams, context of use.  
-	•	Measure: Evals harness, coverage vs. OWASP Top 10 & MITRE ATLAS, KPIs in /docs/metrics.md.  
-	•	Manage: CI gates, remediation workflow (open issues on failures), documented exceptions & review cadence.  
+- [NIST AI Risk Management Framework](https://www.nist.gov/itl/ai-risk-management-framework)  
+- [OWASP Top 10 for LLM Applications](https://owasp.org/www-project-top-10-for-large-language-model-applications/)  
+- [MITRE ATLAS Adversarial Threat Landscape for AI](https://atlas.mitre.org/)  
+- [EU AI Act Timeline & Draft](https://artificialintelligenceact.eu/)  
 
----
+## 📄 License  
 
-## OWASP & ATLAS Coverage
-
-| Risk | Where tested | Mitigation examples |
-| --- | --- | --- |
-| **LLM01: Prompt Injection** | prompt_injection.txt | System prompts, output filtering, tool‑call whitelists |
-| **LLM02: Data Leakage** | data_exfiltration.txt (seeded secrets) | Secrets scanning & redaction, retrieval guardrails |
-| **LLM0X: Unsafe Outputs** | unsafe_content.txt | Safety classifiers/filters, refusal & safe‑complete |
-
-(Adjust per 2025 OWASP LLM Top 10 list; link in References.)
-
----
-
-## References & learn‑by‑doing videos
-
-### Primary frameworks & guidance
-- **NIST AI RMF 1.0** – official PDF + overview.  
-- **OWASP Top 10 for LLMs / GenAI Security Project (2025)** – risks & mitigations.  
-- **MITRE ATLAS** – adversarial tactics for AI.  
-- **EU AI Act timeline** – implementation dates and GPAI guidance context.  
-
-### Open‑source tools you can plug in
-- **PyRIT** – AI red‑team automation framework.  
-- **garak** – LLM vulnerability scanner.  
-- **NVIDIA NeMo Guardrails** – programmable guardrails for LLM apps.  
-- **Llama Prompt Guard 2** – lightweight moderation/safety classifier.  
-
-### YouTube: follow‑along builds
-- **AI Red Teaming 101** (full playlist + flagship episode) – prompt injection, multi‑turn attacks, automation with PyRIT.  
-- **PyRIT deep dives** – hands‑on talks/how‑tos.  
-- **garak tutorials** – run scans against your own API.  
-- **NeMo Guardrails walkthroughs** – end‑to‑end guardrails.  
-- **NIST AI RMF explainers** – concise intros.  
-- **OWASP LLM Top 10 (2025) videos** – updates & short demos.  
-
----
-
-## Security & CI
-	•	Unit tests for filters/policies (/evals/tests).  
-	•	CI gates (GitHub Actions) to fail on eval regression.  
-	•	Optional: CodeQL and OpenSSF Scorecard workflows.  
-
----
-
-## Contributing
-
-PRs welcome! Please add new tests under `/evals/prompts`, update `/evals/configs/*.yaml`, and map them to OWASP/ATLAS labels.  
-
----
-
-## License
-
-MIT (see LICENSE).
+MIT License © 2025 [Xavier Motley](https://linkedin.com/in/xaviermotley)
