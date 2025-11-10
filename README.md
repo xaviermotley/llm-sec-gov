@@ -86,4 +86,4 @@ The kit centers around a few core components:
 
 ## 📄 License  
 
-MIT License © 2025 [Xavier Motley](https://linkedin.com/in/xaviermotley)
+MIT License © 2025 
