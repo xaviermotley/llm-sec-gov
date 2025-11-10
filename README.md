@@ -95,15 +95,6 @@ See /docs/metrics.md for guidance and examples.
 
 ## Architecture
 
-```mermaid
-flowchart LR
-  A[Attack prompts\n(evals/prompts)] --> B[runner.py\n(test harness)]
-  B --> C[LLM endpoint\n(local/remote)]
-  B --> D[Guardrails\n(simple_filters / NeMo)]
-  C -->|response| D -->|checked response| E[Reports\n(evals/reports)]
-  B --> F[Governance artifacts\n(risk register, AI RMF map)]
-  B --> G[CI gates\n(fail on regression)]
-```
 
 ---
 
